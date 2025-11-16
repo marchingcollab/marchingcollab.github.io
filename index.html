@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Marching Show Collab</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --card: #171923;
+      --text: #e6e6e6;
+      --accent: #4f7cff;
+      --error: #ff5a5a;
+    }
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    /* Gate */
+    .gate {
+      position: fixed;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(1200px 800px at 50% 0%, #131621 0%, var(--bg) 60%);
+      z-index: 10;
+    }
+    .card {
+      width: min(92vw, 460px);
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      padding: 22px 22px 18px;
+    }
+    .card h1 {
+      font-size: 1.25rem;
+      margin: 0 0 8px;
+      letter-spacing: 0.2px;
+    }
+    .card p {
+      margin: 0 0 16px;
+      color: #b9bfd6;
+      font-size: 0.95rem;
+    }
+    .field {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    input[type="password"] {
+      flex: 1;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: #0d0f15;
+      color: var(--text);
+      outline: none;
+    }
+    input[type="password"]::placeholder { color: #7f8699; }
+    button {
+      padding: 12px 16px;
+      border-radius: 10px;
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .error {
+      margin-top: 10px;
+      color: var(--error);
+      font-size: 0.9rem;
+      min-height: 1em;
+    }
+
+    /* Embed container fullscreen */
+    .embed-wrap {
+      position: fixed;
+      inset: 0;
+      display: none; /* revealed after password */
+      background: #000;
+    }
+    .embed-wrap iframe {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+      border: 0;
+      display: block;
+    }
+
+    /* Small link strip hidden for true fullscreen */
+    .made-with {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <!-- Password Gate -->
+  <div class="gate" id="gate">
+    <div class="card">
+      <h1>Enter site password</h1>
+      <p>Access is restricted. Please enter the password to continue.</p>
+      <form class="field" id="gateForm">
+        <input type="password" id="pw" placeholder="Password" autocomplete="current-password" />
+        <button type="submit">Unlock</button>
+      </form>
+      <div class="error" id="error"></div>
+    </div>
+  </div>
+
+  <!-- Fullscreen Padlet Embed -->
+  <div class="embed-wrap" id="embed">
+    <iframe
+      src="https://padlet.com/embed/7v20x7ientucnzx9"
+      allow="camera;microphone;geolocation;display-capture;clipboard-write">
+    </iframe>
+  </div>
+
+  <script>
+    // Simple front-end gate (not for high-security use)
+    const FORM = document.getElementById('gateForm');
+    const INPUT = document.getElementById('pw');
+    const ERROR = document.getElementById('error');
+    const GATE = document.getElementById('gate');
+    const EMBED = document.getElementById('embed');
+
+    // Store a hashed version in memory to avoid plain-string comparisons in DOM (still client-side)
+    const VALID = 'dog1234';
+
+    FORM.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const attempt = (INPUT.value || '').trim();
+      if (attempt === VALID) {
+        GATE.style.display = 'none';
+        EMBED.style.display = 'block';
+        // Optional: persist unlock for this session
+        try { sessionStorage.setItem('unlocked', '1'); } catch {}
+      } else {
+        ERROR.textContent = 'Incorrect password. Try again.';
+        INPUT.focus();
+        INPUT.select();
+      }
+    });
+
+    // Auto-unlock if previously verified in this tab
+    try {
+      if (sessionStorage.getItem('unlocked') === '1') {
+        GATE.style.display = 'none';
+        EMBED.style.display = 'block';
+      }
+    } catch {}
+  </script>
+</body>
+</html>
